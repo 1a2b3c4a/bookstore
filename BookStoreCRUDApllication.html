@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Application</title>
+    <style>
+        #heading
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+.main_div
+{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+    
+label
+{
+    color: black;
+    font-size: 20px;
+}
+.update
+{
+    height: 40px;
+    width: 100px;
+    background-color: #197ba3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+.update:hover{
+    cursor: pointer;
+}
+
+.cancle
+{
+    height: 40px;
+    width: 100px;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+.cancle:hover{
+    cursor: pointer;
+}
+
+input
+{
+    height: 40px;
+    width: 300px;
+    background-color: #bbbbbb;
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-size: 20px;
+}
+
+table
+{
+    width: 1000px;
+    border-collapse: collapse;
+    text-align: center;
+}
+tr
+{
+    height: 50px;
+}
+thead
+{
+    background-color: rgb(59, 57, 57);
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+caption
+{
+    font-size: 50px;
+    font-weight: 600;
+}
+#edit
+{
+    height: 30px;
+    background-color: yellow;
+    color: black;
+    border: none;
+    border-radius: 5px;
+}
+#edit:hover
+{
+    cursor: pointer;
+}
+#delete
+{
+    height: 30px;
+    background-color: red;
+    color: black;
+    border: none;
+    border-radius: 5px;
+}
+#delete:hover
+{
+    cursor: pointer;
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div id="heading"><h1>Book Store</h1></div>
+   <div class="main_div">
+    <div class="form_data">
+        <form action="" autocomplete="off">
+            <div>
+                <label for="">Book Name:</label><br>
+                <input type="text" id="book_name">
+            </div>
+            <br>
+            <div>
+                <label for="">Author Name:</label><br>
+                <input type="text" id="author_name">
+            </div>
+            <br>
+            <div>
+                <label for="">Price:</label><br>
+                <input type="text" id="price">
+            </div>
+            <br>
+            <div>
+                <button type="submit" onclick='manageData()' class="update"><i class="fa fa-check" aria-hidden="true"></i>Add</button>
+                <button type="submit" onclick='removeData()' class="cancle">Cancle</button>
+            </div>
+            <p id="msg" style="color: red;"></p>
+        </form>
+    </div>
+    
+
+   <div class="table_data">
+        <table border="1">
+            <thead>
+                <tr>
+                    <td>Sr.No</td>
+                    <td>Book Name</td>
+                    <td>Author Name</td>
+                    <td>Price</td>
+                    <td>Action</td>
+                </tr>        
+            </thead>
+            <tbody id="root">
+            </tbody>
+        </table>
+   </div>
+   </div>
+<script>
+   let id="";
+   selectData();
+   function manageData() {
+       var objectList = new Object();
+       objectList.bookName = document.getElementById('book_name').value;
+       objectList.authorName = document.getElementById('author_name').value;
+       objectList.price = document.getElementById('price').value;
+       if(objectList.bookName=="" && objectList.authorName=="" && objectList.price=="")
+       {
+           document.getElementById('msg').innerHTML = "Please Enter book details";
+       }
+       else
+       {
+           if(id=='')
+           {
+               var arr = JSON.parse(localStorage.getItem("BookStore"));
+               if(arr==null) 
+               {
+                   let data = [objectList];
+                   setCrudData(data);
+               }
+               else
+               {
+                   arr.push(objectList);
+                   setCrudData(arr);
+               }
+           }
+           else
+           {
+              let arr = JSON.parse(localStorage.getItem("BookStore"));
+              arr[id] = objectList;
+              setCrudData(arr);
+           }
+           selectData();
+       }
+       document.getElementById('book_name').value='';
+       document.getElementById('author_name').value='';
+       document.getElementById('price').value='';
+   }
+
+   function selectData() {
+       let arr = JSON.parse(localStorage.getItem("BookStore"));
+       if(arr!=null)
+       {
+           let html='';
+           let sno = 1;
+           for(let k in arr)
+           {
+               html=html+`<tr><td>${sno}</td><td>${arr[k].bookName}</td><td>${arr[k].authorName}</td><td>${arr[k].price}</td>
+                   <td><button onclick="editData(${k})" id="edit"><i class="fa fa-pencil" aria-hidden="true"></i>Edit</button>&nbsp;&nbsp;
+                       <button onclick="deleteData(${k})" id="delete"><i class="fa fa-trash" aria-hidden="true"></i>Delete</button></td></tr>`;
+               sno++;
+           }
+           document.getElementById('root').innerHTML = html;
+       }
+   }
+
+
+   function editData(rid) {
+       id = rid;
+       let arr = JSON.parse(localStorage.getItem("BookStore"));
+       document.getElementById('book_name').value = arr[rid].bookName;
+       document.getElementById('author_name').value = arr[rid].authorName;
+       document.getElementById('price').value = arr[rid].price;
+   }
+
+   function deleteData(rid) {
+       let arr = JSON.parse(localStorage.getItem("BookStore"));
+       arr.splice(rid,1);
+       setCrudData(arr);
+       selectData();
+   }
+
+   function setCrudData(arr) {
+       localStorage.setItem('BookStore',JSON.stringify(arr));
+   }
+
+
+   function removeData()
+   {
+       document.getElementById('book_name').value='';
+       document.getElementById('author_name').value='';
+       document.getElementById('price').value='';
+   }
+        
+    </script>
+</body>
+</html>
